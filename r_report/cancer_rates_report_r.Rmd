@@ -1,0 +1,576 @@
+---
+title: ""
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+  pdf_document: default
+---
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Load Libraries
+library(tidyverse)
+library(janitor)
+library(infer)
+
+# Set Colour Scheme
+
+colour_scheme <- c("#092869", "#0391BF", "#6B077B")
+
+# Read In Data
+
+cancer_incidence <- read_csv("data/cancer_incidence_by_health_board.csv") %>% 
+  clean_names()
+
+five_year_summary <- read_csv("data/five_year_cancer_incidence_summary.csv") %>% 
+  clean_names()
+
+geography_codes <- read_csv("data/geography_codes_and_labels.csv") %>%
+  clean_names()
+```
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+# cancer_incidence Borders Only
+
+cancer_incidence_borders <- cancer_incidence %>% 
+  filter(hb == "S08000016")
+
+# Clean five_year_summary
+
+five_year_summary_borders <- five_year_summary %>% 
+  filter(hb == "S08000016")
+
+five_year_summary_borders_incidence <- five_year_summary_borders %>%
+  select(id, hb, cancer_site, sex, year | starts_with("incidences"))
+
+five_year_summary_long <- five_year_summary_borders_incidence %>%
+  pivot_longer(
+    cols = incidences_age_under5:incidences_age85and_over,
+    names_to = "age",
+    values_to = "incidences"
+  ) %>% 
+  select(-incidences_all_ages) %>% 
+  mutate(age = str_remove(age, "incidences_age"),
+         age = str_replace_all(age, "_", ""),
+         age = str_replace_all(age, "to", "-"),
+         age = case_when(
+           age == "under5" ~ "Under 5",
+           age == "85andover" ~ "85+",
+           TRUE ~ age)) %>% 
+  mutate(age = factor(age, levels = c("Under 5", "5-9",
+                                      "10-14", "15-19",
+                                      "20-24", "25-29",
+                                      "30-34", "35-39",
+                                      "40-44", "45-49",
+                                      "50-54", "55-59",
+                                      "60-64", "65-69",
+                                      "70-74", "75-79",
+                                      "80-84", "85+")))
+
+```
+
+<center>
+![](images/nhs-borders.jpg)
+</center>
+
+<font size="6">
+<center>
+**NHS Borders Cancer Incidence Report**
+</center>
+</font> 
+
+# Overview
+
+Across all ages and genders, the 3 forms of cancer with the highest number of incidences in NHS Borders between 1997-2021 are:
+
+**Cancer Site / Incidences**
+
+1. Non-melanoma skin cancer /	6174
+2. Basal cell carcinoma of the skin	/ 4049
+3. Breast	/ 2614
+
+*NB - Basal cell carcinoma of the skin is form form of Non-melanoma skin cancer (NHS Inform, 2022)*
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "All") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(total_incidences = sum(incidences_all_ages)) %>% 
+#   arrange(desc(total_incidences)) %>% 
+#   head(3)
+```
+
+
+For the purposes of clarity, this report does not seek to provide an exhaustive overview of cancer incidences and rates within NHS Borders. Instead, it aims to provide further understanding by focussing on one trend which it is believed will require consideration for effective cancer service planning within NHS Borders.
+
+To do this, the report focuses on incidences of breast cancer in woman, which have the 3rd overall largest number of incidences in NHS Borders between 1997 and 2021. However, additional analysis on Non-melanoma skin cancer which has the highest number of overall incidences in NHS Borders is also availble.
+
+***
+
+# Breast Cancer
+
+## Context
+
+In the available date, among females in NHS Borders,breast cancer has the highest number of incidences, highest mean crude rate and highest mean European age-standardised rate (EASR).
+
+<div class = "row">
+  
+<div class = "col-md-6">
+**Cancer Site / Incidences**
+
+**1.** Breast / 2598			
+**2.** Non-melanoma skin cancer / 2519			
+**3.** Basal cell carcinoma of the skin / 1882	
+</div>
+  
+<div class = "col-md-6">
+**Cancer Site / Mean Crude Rate**
+
+**1.** Breast	/ 179.9348			
+**2.** Non-melanoma skin cancer /	174.2811			
+**3.** Basal cell carcinoma of the skin /	130.1987	
+</div>
+
+</div>
+
+<div class = "row">  
+<div class = "col-md-6">
+**Cancer Site / Mean EASR**
+
+**1.** Breast / 161.3640			
+**2.** Non-melanoma skin cancer / 150.3996			
+**3.** Basal cell carcinoma of the skin / 113.9178			
+</div>
+
+
+</div>
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "Females") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(total_incidences = sum(incidences_all_ages)) %>% 
+#   arrange(desc(total_incidences)) %>% 
+#   head(3)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "Females") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(mean_crude_rate = mean(crude_rate)) %>% 
+#   arrange(desc(mean_crude_rate)) %>% 
+#   head(3)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "Females") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(mean_easr = mean(easr)) %>% 
+#   arrange(desc(mean_easr)) %>% 
+#   head(3)
+```
+
+## Visualisations
+
+### *[fig. 1]*
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+cancer_incidence_borders %>% 
+  filter(sex == "Females",
+         cancer_site %in% c("All cancer types", "Breast")) %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = incidences_all_ages, colour = cancer_site),
+            size = 1.5) +
+  geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
+            size = 3) +
+  scale_x_continuous(breaks = c(1997, 1999, 2001, 2003, 2005, 2007, 2009,
+                                2011, 2013, 2015, 2017, 2019, 2021)) +
+  scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Breast")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 500) +
+  labs(
+    x = "\n Year",
+    y = "Incidences\n",
+    title = "All Female Cancer Incidences vs. Female Breast Cancer Incidences",
+    subtitle = "NHS Borders: 1997-2021",
+    colour = "Cancer Type:") +
+  geom_vline(xintercept = 2020, linetype = "dashed") +
+  # annotate("text", x = 2021, y = 500, label = "COVID-19", size = 2, face = "bold", colour = "red") +
+  # annotate("segment", x = 1999, xend = 1999, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 1999, y = 150, label = "+93%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2002, xend = 2002, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2002, y = 150, label = "+62%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2005, xend = 2005, y = 250, yend = 200,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2005, y = 200, label = "+189%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2008, xend = 2008, y = 225, yend = 175,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2008, y = 175, label = "+180%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2011, xend = 2011, y = 225, yend = 175,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2011, y = 175, label = "+83%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2014, xend = 2014, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2014, y = 150, label = "+14%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2017, xend = 2017, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2017, y = 155, label = "+39%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2021, xend = 2021, y = 220, yend = 170,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2021, y = 170, label = "+39%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2020, xend = 2020, y = 175, yend = 125,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  # annotate("text", x = 2020, y = 190, label = "+9%", size = 3, face = "bold", colour = "#6B077B") +
+  theme(plot.title = element_text(size = 13, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(colour = "grey90", 
+                                  linetype = "dashed"))
+
+```
+
+*NB - Percentages on the above visualisation indicate % change in incidences from the previous year.* 
+
+| Year | No. of Breast Cancer Incidences | % Change   |
+|:------|:-------------------|:------------|
+| 1997 | 71                | NA         |
+| 1998 | 69                | -2.816901  |
+| **1999** | **133**               | **92.753623**  |
+| 2000 | 69                | -48.120301 |
+| 2001 | 81                | 17.391304  |
+| **2002** | **131**               | **61.728395**  |
+| 2003 | 67                | -48.854962 |
+| 2004 | 62                | -7.462687  |
+| **2005** | **179**              | **188.709677** |
+| 2006 | 68                | -62.011173 |
+| 2007 | 55                | -19.117647 |
+| **2008** | **154**               | **180.000000** |
+| 2009 | 94                | -38.961039 |
+| 2010 | 86                | -8.510638  |
+| **2011** | **157**              | **82.558140**  |
+| 2012 | 103               | -34.394904 |
+| 2013 | 114               | 10.679612  |
+| **2014** | **130**               | **14.035088**  |
+| 2015 | 90                | -30.769231 |
+| 2016 | 98                | 8.888889   |
+| **2017** | **136**               | **38.775510**  |
+| 2018 | 97                | -28.676471 |
+| 2019 | 98                | 1.030928   |
+| 2020 | 107               | 9.183673   |
+| 2021 | 149               | 39.252336  |
+
+**What does this visualisation tell us?**
+
+- That breast cancer incidences in females are driving the trend of all cancer type incidences.
+- That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years. The average percentage increase in incidences from the previous year at the 7 peaks highlighted is **94%**. 
+- That this trend is less evident in 2020 when we may have expected it, indeed there was only a **9%** increase from 2020.
+- There is however an increase of **39%** between 2020 and 2021.
+
+**What does hypothesis testing tell us?**
+
+**Question:** Is the mean number of female breast cancer incidences in *"peak years"* (1999, 2002, 2005, 2008, 2011, 2014, 2017) greater than mean number of female breast cancer incidences in *"non-peak years"* (1997, 1998, 2000, 2001, 2003, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2018, 2019)?
+
+**Test Used:** Two Sample Mean Test (Independent)
+
+**Significance Level:** 0.05
+
+**Bootstrap Method:** Permute
+
+**H0:** $\mu{1}$ - $\mu{2}$ = 0
+**H1:** $\mu{1}$ - $\mu{2}$ > 0 
+
+Based on a bootstrapped NULL distribution, a very low p-value which is less than 0.05 is returned. We therefor reject H0 in favor of H1 with evidence suggesting that there is a statistically significant increase in the mean number of female breast cancer incidences in *"peak years"*.
+
+In this instance the p-value is returned as 0 which we will interpret as p < 0.001 so as not to be misleading and suggest absolute certainty. As this is lower than our set significance level of 0.05 we can reject H0 which stated that there was no statistically significant difference in the mean number of female breast cancer incidences in *"peak years"* compared to *"non-peak years"*. We reject H0 in favour of H1, whilst not asserting this as true, as their is sufficient evidence to support the Hypothesis that the the mean number of female breast cancer incidences in *"peak years"* is greater than in *"non-peak years"* when considered against the hypothesis that there is no difference.
+
+To explain further the rationale for this, the p-value represents the probability of obtaining the observed statistic (mean difference of female breast cancer incidences 58.04762) from our sample assuming H0 was true (eg. if there was no difference). Therefor the probability of observing this mean difference if there was no difference is very low.
+
+**Why might there be a historic 3 year trend?**
+
+Women who meet screening criteria are invited for breast screening once every 3 years *(NHS National Services Scotland, 2022)*.
+
+**Why might we not see the same peak in 2020 as we may have expected?**
+
+Due to the COVID-19 pandemic, no invites to breast screenings were sent between 30 March 2020 and 3 August 2020 *(Public Health Scotland, 2022)*.
+
+***
+
+### *[fig. 2]*
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+five_year_summary_long %>%
+  filter(cancer_site == "Breast",
+         sex == "Females") %>%
+  ggplot() +
+  geom_col(aes(x = age, y = incidences),
+           fill = "#0391BF") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    x = "\n Age",
+    y = "Incidences\n",
+    title = "Total Female Breast Cancer Incidences by Age",
+    subtitle = "NHS Borders: 2017-2021") +
+  theme(plot.title = element_text(size = 15, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(colour = "grey90", 
+                                  linetype = "dashed"))
+```
+
+**What does this visualisation tell us?**
+
+- The majority of breast cancer incidences in females appear to be between those aged between 50 and 79.
+
+**Why might these age groups see increased incidence numbers?**
+
+- Currently only women between the ages of 50 and 70 are routinely screened *(NHS National Services Scotland, 2022)*.
+
+<style>
+div.yellow {background-color:#fcf8c0; border-radius: 5px; padding: 20px;}
+
+</style>
+<div class = "yellow">
+
+**NHS Borders Population Projections:**
+
+Females 50+ 2021: 29889
+
+Females 50+ 2041: 31148 (4.21225% increase)
+
+*(National Records of Scotland, 2023)*
+
+</div>
+
+***
+
+## Conclusions / Recommendations
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+- Screening data should be reviewed to establish if the resulting back-log from COVID-19 has been cleared in order to establish whether a further increase in incidences should be anticipated in 2022.
+
+- Resources should be allocated according to the observed trend of increased incidences every three years
+
+- Research/Analysis should be conducted to further understand and confirm any reason for this trend, including any links to screening schedules.
+
+- Research/Analysis should be conducted to establish whether increased incidence with age is in any way the result of current screening criteria and if therefor screening criteria should be widened.
+
+- Long term service planning should take into consideration the ~4% projected population increase of the female 50-70 demographic in NHS Borders, as rejected by the National Records of Scotland.
+
+</div>
+
+***
+
+# Non-melanoma Skin Cancer
+
+## Context
+
+
+In the available date, among males in NHS Borders, Non-melanoma skin cancer has the highest number of incidences, highest mean crude rate and highest mean European age-standardised rate (EASR).
+
+<div class = "row">
+  
+<div class = "col-md-6">
+**Cancer Site / Incidences**
+
+**1.** Non-melanoma skin cancer	/ 3655			
+**2.** Prostate	/ 2253				
+**3.** Basal cell carcinoma of the skin	/ 2167	
+</div>
+  
+<div class = "col-md-6">
+**Cancer Site / Mean Crude Rate**
+
+**1.** Non-melanoma skin cancer	268.35849			
+**2.** Prostate	165.64352			
+**3.** Basal cell carcinoma of the skin	159.20984		
+</div>
+
+</div>
+
+<div class = "row">  
+<div class = "col-md-6">
+**Cancer Site / Mean EASR**
+
+**1.** Non-melanoma skin cancer	/ 274.87691			
+**2.** Prostate	/ 161.63449				
+**3.** Basal cell carcinoma of the skin	/ 156.12175				
+</div>
+
+
+</div>
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "Male") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(total_incidences = sum(incidences_all_ages)) %>% 
+#   arrange(desc(total_incidences)) %>% 
+#   head(5)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "Male") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(mean_crude_rate = mean(crude_rate)) %>% 
+#   arrange(desc(mean_crude_rate)) %>% 
+#   head(5)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   # filter(cancer_site != "All cancer types",
+#   #        sex == "Male") %>% 
+#   # group_by(cancer_site) %>% 
+#   # summarise(mean_easr = mean(easr)) %>% 
+#   # arrange(desc(mean_easr)) %>% 
+#   # head(5)
+```
+
+***
+
+## Visualisations
+
+### *[fig. 3]*
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+cancer_incidence_borders %>% 
+  filter(sex == "Male",
+         cancer_site %in% c("All cancer types", "Non-melanoma skin cancer")) %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = incidences_all_ages, colour = cancer_site),
+            size = 1.5) +
+  geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
+            size = 2) +
+  scale_x_continuous(breaks = c(1997, 1999, 2001, 2003, 2005, 2007, 2009,
+                                2011, 2013, 2015, 2017, 2019, 2021)) +
+  scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Non-melanoma Skin Cancer")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 500) +
+  labs(
+    x = "\n Year",
+    y = "Incidences\n",
+    title = "All Male Cancer Incidences vs. Male Non-melanoma Skin Cancer Incidences",
+    subtitle = "NHS Borders: 1997-2021",
+    colour = "Cancer Type:") +
+  geom_vline(xintercept = 2020, linetype = "dashed") +
+  # annotate("text", x = 2021, y = 500, 
+  #          label = "COVID-19", 
+  #          size = 2, face = "bold", colour = "red") +
+  theme(plot.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 8),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(colour = "grey90", 
+                                  linetype = "dashed"))
+```
+
+**What does this visualisation tell us?**
+
+- That incidences of male non-melanoma skin cancer are generally following the same trend as incidences of all types of cancer in men, steadily increasing from 1997 to 2021.
+
+- There is no initially obvious pattern in years where incidences increase or decrease as seen with breast cancer incidences and the impact of the COVID-19 Pandemic on incidences is also less clear.
+
+- There is a ~29% drop in all combined male cancer incidences between 2018 and 2020. Initial exploratory analysis suggests that this was down to a decrease in incidences across a number of cancer types; however, this would require further analysis to confirm.  
+
+***
+
+### *[fig. 4]*
+
+```{r, echo = FALSE}
+five_year_summary_long %>%
+  filter(cancer_site == "Non-melanoma skin cancer",
+         sex == "Male") %>%
+  ggplot() +
+  geom_col(aes(x = age, y = incidences),
+           fill = "#0391BF") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    x = "\n Age",
+    y = "Incidences\n",
+    title = "Total Male Non-melanoma Skin Cancer Incidences by Age",
+    subtitle = "NHS Borders: 2017-2021") +
+  theme(plot.title = element_text(size = 15, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(colour = "grey90", 
+                                  linetype = "dashed"))
+```
+
+**What does this visualisation tell us?**
+
+- The majority of Non-melanoma skin cancer Incidences in males appear to be between those aged between 70 and 85+.
+
+<style>
+div.yellow {background-color:#fcf8c0; border-radius: 5px; padding: 20px;}
+
+</style>
+<div class = "yellow">
+
+**NHS Borders Population Projections:**
+
+Males 70+ 2021: 9692
+
+Males 70+ 2041: 13487 (39.156% increase)
+
+*(National Records of Scotland, 2023)*
+
+</div>
+
+***
+
+## Conclusions / Recommendations
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+- Key to effective server precision will be plans to accomdate the projected population increase of ~39% over the 20 years from the end of this data set.
+
+- In order to better understand cancer incidence trends and plan resources accordingly, further analysis/research should be conducted in order to understand the decrease in all male cancer incidences between 2018 and 2020.
+
+</div>
+
+***
+
+# Data Sources
+
+- Public Health Scotland: Incidence by Health Board
+https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
+
+- Public Health Scotland: 5 Year Summary of Incidence by Health Board
+https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/e8d33b2b-1fb2-4d59-ad21-20fa2f76d9d5
+
+- Public Health Scotland: Health Board 2014 - Health Board 2019 (Geography Codes)
+https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/652ff726-e676-4a20-abda-435b98dd7bdc
+
+# References
+- NHS Inform, 2022:
+https://www.nhsinform.scot/illnesses-and-conditions/cancer/cancer-types-in-adults/skin-cancer-non-melanoma
+
+- NHS National Services Scotland, 2022: https://www.nss.nhs.scot/specialist-healthcare/screening-programmes/breast-screening/
+
+- National Records of Scotland, 2023:
+https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-projections/sub-national-population-projections/2018-based/detailed-datasets
+
+- Public Health Scotland, 2022:
+https://www.publichealthscotland.scot/media/12843/2022-04-26_breast_screening_report.pdf
