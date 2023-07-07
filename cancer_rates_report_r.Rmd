@@ -1,5 +1,5 @@
 ---
-title: "NHS Borders: Breast Cancer Incidence Report"
+title: "<b>Breast Cancer Incidence Report</b>"
 output:
   html_document:
     theme: flatly
@@ -8,6 +8,8 @@ output:
     code_folding: "hide"
   pdf_document: default
 ---
+
+*Disclaimer: This report has been written for the authors learning purposes only.*
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 
@@ -99,68 +101,100 @@ geo_summary <- hb_shapefiles %>%
 
 ```
 
+
+# Brief
+
+To inform the planning and provision of cancer treatment services, analyse breast cancer incidence data from the NHS Borders health board. Findings should be presented in a report of 1-2 pages, highlighting any significant insights and identified trends.
+
 # Introduction
 
-Across all ages and genders, the 3 forms of cancer with the highest number of incidences in NHS Borders between 1997-2021 are:
-
-**Cancer Site / Incidences**
-
-1. Non-melanoma skin cancer /	6174
-2. Basal cell carcinoma of the skin	/ 4049
-3. Breast	/ 2614
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# cancer_incidence_borders %>% 
-#   filter(cancer_site != "All cancer types",
-#          sex == "All") %>% 
-#   group_by(cancer_site) %>% 
-#   summarise(total_incidences = sum(incidences_all_ages)) %>% 
-#   arrange(desc(total_incidences)) %>% 
-#   head(3)
-```
-
-
-This report will focus on instances of breast cancer, which among females in NHS Borders, has the highest number of incidences, highest mean crude rate and highest mean European age-standardised rate (EASR).
+Between 1997-2021, incidences of breast cancer in males made up less than 1% of total breast cancer incidences. This report will therefor focus on instances of breast cancer among females.
 
 <div class = "row">
   <div class = "col-md-6">
-**Cancer Site / Incidences**
 
-**1.** Breast / 2598			
-**2.** Non-melanoma skin cancer / 2519			
-**3.** Basal cell carcinoma of the skin / 1882
-  
-  </div>
+```{r, message = FALSE}
+cancer_incidence_borders %>%
+  filter(cancer_site != "All Cancer Types",
+         sex == "All") %>%
+  group_by(cancer_site) %>%
+  summarise(total_incidences = sum(incidences_all_ages)) %>%
+  arrange(desc(total_incidences)) %>%
+  head(3) %>% 
+  gt() %>%
+  tab_header(title = "Total Cancer Incidences") %>% 
+  cols_label(
+    cancer_site = "Cancer Site",
+    total_incidences = "Total Incidences") %>%
+  tab_options(column_labels.font.weight = "bold",
+              table.align = "left")
+```
+
+</div>
 <div class = "col-md-6">
 
-**Cancer Site / Mean EASR**
+```{r, message = FALSE}
+cancer_incidence_borders %>%
+  filter(cancer_site == "Breast",
+         sex != "All") %>%
+  group_by(sex) %>%
+  summarise(total_incidences = sum(incidences_all_ages)) %>%
+  arrange(desc(total_incidences)) %>%
+  head(3) %>% 
+  gt() %>%
+  tab_header(title = "Breast Cancer Incidences by Sex") %>% 
+  cols_label(
+    sex = "Sex",
+    total_incidences = "Total Incidences") %>%
+  tab_options(column_labels.font.weight = 'bold',
+              table.align = "left")
+```
 
-**1.** Breast / 161.3640			
-**2.** Non-melanoma skin cancer / 150.3996			
-**3.** Basal cell carcinoma of the skin / 113.9178			
 </div>
 </div>
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# cancer_incidence_borders %>% 
-#   filter(cancer_site != "All cancer types",
-#          sex == "Females") %>% 
-#   group_by(cancer_site) %>% 
-#   summarise(total_incidences = sum(incidences_all_ages)) %>% 
-#   arrange(desc(total_incidences)) %>% 
-#   head(3)
+According to NHS Borders data, breast cancer among females has  the highest number of incidences, highest mean crude rate and highest mean European age-standardised rate (EASR) of any cancer type.
+
+*NB - The EASR is defined as "a weighted mean of the age-specific rates where the weights are taken from the population distribution of a standard population; the ASR is expressed per 100,000." (European Commission, 2023)*
+
+<div class = "row">
+<div class = "col-md-6">
+
+```{r, message = FALSE}
+cancer_incidence_borders %>%
+  filter(cancer_site != "All Cancer Types",
+         sex == "Females") %>%
+  group_by(cancer_site) %>%
+  summarise(total_incidences = sum(incidences_all_ages)) %>%
+  arrange(desc(total_incidences)) %>%
+  head(3) %>% 
+  gt() %>%
+  cols_label(
+    cancer_site = "Cancer Site",
+    total_incidences = "Total Incidences") %>%
+  tab_options(column_labels.font.weight = 'bold')
 ```
 
+</div>
+<div class = "col-md-6">
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-# cancer_incidence_borders %>% 
-#   filter(cancer_site != "All cancer types",
-#          sex == "Females") %>% 
-#   group_by(cancer_site) %>% 
-#   summarise(mean_easr = mean(easr)) %>% 
-#   arrange(desc(mean_easr)) %>% 
-#   head(3)
+```{r}
+cancer_incidence_borders %>%
+  filter(cancer_site != "All Cancer Types",
+         sex == "Females") %>%
+  group_by(cancer_site) %>%
+  summarise(mean_easr = mean(easr)) %>%
+  arrange(desc(mean_easr)) %>%
+  head(3) %>%
+  gt() %>%
+  cols_label(
+    cancer_site = "Cancer Site",
+    mean_easr = "Mean EASR") %>%
+  tab_options(column_labels.font.weight = 'bold')
 ```
+
+</div>
+</div>
 
 ***
 
@@ -251,14 +285,21 @@ ggplotly(fig1_plot, tooltip = "text") %>%
 
 **What does this visualisation tell us?**
 
-- That breast cancer incidences in females are driving the trend of all cancer type incidences.
-- That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years.
+- That breast cancer incidences in females appear to be driving the trend of all cancer type incidences.
+- That breast cancer incidences appear to peak approximately every 3 years.
 
-When we look at the percentage changes in breast cancer incidences we can gain further insights. The table below shows:
+When we look at the year-on-year percentage changes in breast cancer incidences we can gain further insights. The table below shows:
 
-- The average percentage increase in incidences from the previous year at the 7 peaks highlighted is **94%**. 
-- That this trend is less evident in 2020 when we may have expected it, indeed there was only a **9%** increase from 2020.
-- There is however an increase of **39%** between 2020 and 2021.
+- The average percentage increase in incidences from the previous year at the 8 peaks highlighted is **84%**. 
+- This trend is less evident in 2020 when we may have expected it, indeed there was only a **9%** increase from 2020.
+
+**Why might there be a 3 year trend?**
+
+Women who meet screening criteria are invited for breast screening once every 3 years *(NHS National Services Scotland, 2022)*.
+
+**Why might we not see the same peak in 2020 as we may have expected?**
+
+Due to the COVID-19 pandemic, no invites to breast screenings were sent between 30 March 2020 and 3 August 2020 *(Public Health Scotland, 2022)*.
 
 ```{r, message = FALSE}
 
@@ -266,8 +307,8 @@ cancer_incidence_borders %>%
   filter(sex == "Females",
          cancer_site == "Breast") %>% 
   select(year, sex, cancer_site, incidences_all_ages) %>% 
-  mutate(yearly_pct_change = (incidences_all_ages - lag(incidences_all_ages)) / lag(incidences_all_ages) * 100) %>% 
-    gt() %>%
+  mutate(yearly_pct_change = round((incidences_all_ages - lag(incidences_all_ages)) / lag(incidences_all_ages) * 100)) %>% 
+  gt() %>%
   cols_label(
     year = "Year",
     sex = "Sex",
@@ -284,6 +325,8 @@ cancer_incidence_borders %>%
 ***
 
 # Hypothesis Test
+
+**Question:** Is the greater number of female breast cancer incidences in *"peak years"* (1999, 2002, 2005, 2008, 2011, 2014, 2017) compared to *"non-peak years"* (1997, 1998, 2000, 2001, 2003, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2018, 2019) statistically significant?
 
 ```{r, message = FALSE, warning = FALSE}
 cancer_incidence_borders_sample <- cancer_incidence_borders %>%
@@ -316,11 +359,6 @@ p_value <- null_distribution %>%
 
 ```
 
-
-**What does hypothesis testing tell us?**
-
-**Question:** Is the mean number of female breast cancer incidences in *"peak years"* (1999, 2002, 2005, 2008, 2011, 2014, 2017) greater than mean number of female breast cancer incidences in *"non-peak years"* (1997, 1998, 2000, 2001, 2003, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2018, 2019)?
-
 <div class = "row">
   <div class = "col-md-6">
 
@@ -336,17 +374,7 @@ p_value <- null_distribution %>%
 </div>
 </div>
 
-**Result:**
-
-Based on a bootstrapped NULL distribution, a very low p-value which is less than 0.05 is returned. We therefor reject H0 in favor of H1 with evidence suggesting that there is a statistically significant increase in the mean number of female breast cancer incidences in *"peak years"*.
-
-**Why might there be a historic 3 year trend?**
-
-Women who meet screening criteria are invited for breast screening once every 3 years *(NHS National Services Scotland, 2022)*.
-
-**Why might we not see the same peak in 2020 as we may have expected?**
-
-Due to the COVID-19 pandemic, no invites to breast screenings were sent between 30 March 2020 and 3 August 2020 *(Public Health Scotland, 2022)*.
+**Result:** Based on a bootstrapped NULL distribution, a very low p-value which is less than 0.05 is returned. We therefor reject H0 in favor of H1 with evidence suggesting that there is a statistically significant increase in the mean number of female breast cancer incidences in *"peak years"*.
 
 ***
 
@@ -419,7 +447,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 - Research/Analysis should be conducted to establish whether increased incidence with age is in any way the result of current screening criteria and if therefor screening criteria should be widened.
 
-- Long term service planning should take into consideration the ~4% projected population increase of the female 50-70 demographic in NHS Borders, as rejected by the National Records of Scotland.
+- Long term service planning should take into consideration the ~4% projected population increase of the female 50-70 demographic in NHS Borders, as projected by the National Records of Scotland.
 
 </div>
 
@@ -440,8 +468,9 @@ https://www.opendata.nhs.scot/dataset/geography-codes-and-labels
 https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
 
 # References
-- NHS Inform, 2022:
-https://www.nhsinform.scot/illnesses-and-conditions/cancer/cancer-types-in-adults/skin-cancer-non-melanoma
+
+- European Commission, 2023
+https://ecis.jrc.ec.europa.eu/info/glossary.html
 
 - NHS National Services Scotland, 2022: https://www.nss.nhs.scot/specialist-healthcare/screening-programmes/breast-screening/
 
