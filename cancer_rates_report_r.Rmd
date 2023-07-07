@@ -153,9 +153,7 @@ cancer_incidence_borders %>%
 </div>
 </div>
 
-According to NHS Borders data, breast cancer among females has  the highest number of incidences, highest mean crude rate and highest mean European age-standardised rate (EASR) of any cancer type.
-
-*NB - The EASR is defined as "a weighted mean of the age-specific rates where the weights are taken from the population distribution of a standard population; the ASR is expressed per 100,000." (European Commission, 2023)*
+According to NHS Borders data, breast cancer among females has  the highest number of incidences, highest mean crude rate and highest mean European age-standardised rate (EASR) of any cancer type. See below for a more detail on how the EASR is calculated.
 
 <div class = "row">
 <div class = "col-md-6">
@@ -200,7 +198,7 @@ cancer_incidence_borders %>%
 
 # Health Board Comparison
 
-To understand how these rates compare to other health boards in Scotland, we can visualise a five year summary of the EASR.
+To understand how these rates compare to other health boards in Scotland, we can visualise a five year summary of the EASR - which is a *"weighted mean of the age-specific rates where the weights are taken from the population distribution of a standard population; the ASR is expressed per 100,000." (European Commission, 2023)*
 
 ```{r, message = FALSE}
 
@@ -222,6 +220,8 @@ geo_summary %>%
         axis.title.y = element_blank())
 
 ```
+
+*NB - Unfortunately data for the individual health boards NHS Western Isles, NHS Shetland and NHS Orkney was not available at the time of report completion.*
 
 ```{r, message = FALSE}
 five_year_summary %>%
