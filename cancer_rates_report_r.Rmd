@@ -28,8 +28,6 @@ cancer_incidence <- read_csv("data/cancer_incidence_by_health_board.csv") %>%
 five_year_summary <- read_csv("data/five_year_cancer_incidence_summary.csv") %>% 
   clean_names()
 
-geography_codes <- read_csv("data/geography_codes_and_labels.csv") %>%
-  clean_names()
 ```
 
 
@@ -72,6 +70,9 @@ five_year_summary_long <- five_year_summary_borders_incidence %>%
                                       "60-64", "65-69",
                                       "70-74", "75-79",
                                       "80-84", "85+")))
+
+rm(five_year_summary_borders)
+rm(five_year_summary_borders_incidence)
 
 ```
 
@@ -339,14 +340,17 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 # Data Sources
 
-- Public Health Scotland: Incidence by Health Board
-https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
+- SpatialData.gov.scot Metadata Portal: NHS Scotland Health Boards
+https://spatialdata.gov.scot/geonetwork/srv/api/records/f12c3826-4b4b-40e6-bf4f-77b9ed01dc14
 
 - Public Health Scotland: 5 Year Summary of Incidence by Health Board
 https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/e8d33b2b-1fb2-4d59-ad21-20fa2f76d9d5
 
-- Public Health Scotland: Health Board 2014 - Health Board 2019 (Geography Codes)
-https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/652ff726-e676-4a20-abda-435b98dd7bdc
+- Public Health Scotland: Geography Codes and Labels
+https://www.opendata.nhs.scot/dataset/geography-codes-and-labels
+
+- Public Health Scotland: Incidence by Health Board
+https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
 
 # References
 - NHS Inform, 2022:
