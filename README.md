@@ -1,5 +1,7 @@
 # Cancer Incidences: Report
- 
+
+[LINK TO REPORT HOSTED ON GITHUB PAGES](https://stenhousestuart.github.io/cancer_rates_report/)
+
 ------------------------------------------------------------------------
 
 ## Introduction
@@ -19,7 +21,9 @@ To inform the planning and provision of cancer treatment services, analyse breas
 
 ## Screenshots
 
-[LINK TO REPORT HOSTED ON GITHUB PAGES](https://stenhousestuart.github.io/cancer_rates_report/)
+![](images/hb_geo.png)
+
+![](images/trends_over_time.png)
 
 ------------------------------------------------------------------------
 
