@@ -1,6 +1,6 @@
 # Cancer Incidences: Report
 
-[LINK TO REPORT HOSTED ON GITHUB PAGES](https://stenhousestuart.github.io/cancer_rates_report/)
+[LINK TO REPORT HOSTED ON GITHUB PAGES](https://stenhousestuart.github.io/cancer_incidences_report/)
 
 ------------------------------------------------------------------------
 
