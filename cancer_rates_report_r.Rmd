@@ -17,8 +17,7 @@ library(infer)
 library(plotly)
 library(sf)
 library(gt)
-library(paletteer)
-library(nord)
+library(gtExtras)
 
 # Set Colour Scheme
 
@@ -210,7 +209,7 @@ five_year_summary %>%
     sex = "Sex",
     cancer_site = "Cancer Site",
     easr = "EASR") %>% 
-  tab_options(column_labels.font.weight = 'italic') %>%
+  tab_options(column_labels.font.weight = 'bold') %>%
   data_color(columns = easr, palette = "Blues")
   
 ```
@@ -252,40 +251,38 @@ ggplotly(fig1_plot, tooltip = "text") %>%
 
 ```
 
-| Year | No. of Breast Cancer Incidences | % Change From Previous Year   |
-|:------|:-------------------|:------------|
-| 1997 | 71                | NA         |
-| 1998 | 69                | -2.816901  |
-| **1999** | **133**               | **92.753623**  |
-| 2000 | 69                | -48.120301 |
-| 2001 | 81                | 17.391304  |
-| **2002** | **131**               | **61.728395**  |
-| 2003 | 67                | -48.854962 |
-| 2004 | 62                | -7.462687  |
-| **2005** | **179**              | **188.709677** |
-| 2006 | 68                | -62.011173 |
-| 2007 | 55                | -19.117647 |
-| **2008** | **154**               | **180.000000** |
-| 2009 | 94                | -38.961039 |
-| 2010 | 86                | -8.510638  |
-| **2011** | **157**              | **82.558140**  |
-| 2012 | 103               | -34.394904 |
-| 2013 | 114               | 10.679612  |
-| **2014** | **130**               | **14.035088**  |
-| 2015 | 90                | -30.769231 |
-| 2016 | 98                | 8.888889   |
-| **2017** | **136**               | **38.775510**  |
-| 2018 | 97                | -28.676471 |
-| 2019 | 98                | 1.030928   |
-| 2020 | 107               | 9.183673   |
-| 2021 | 149               | 39.252336  |
-
 **What does this visualisation tell us?**
 
 - That breast cancer incidences in females are driving the trend of all cancer type incidences.
-- That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years. The average percentage increase in incidences from the previous year at the 7 peaks highlighted is **94%**. 
+- That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years.
+
+When we look at the percentage changes in breast cancer incidences we can gain further insights. The table below shows:
+
+- The average percentage increase in incidences from the previous year at the 7 peaks highlighted is **94%**. 
 - That this trend is less evident in 2020 when we may have expected it, indeed there was only a **9%** increase from 2020.
 - There is however an increase of **39%** between 2020 and 2021.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+cancer_incidence_borders %>% 
+  filter(sex == "Females",
+         cancer_site == "Breast") %>% 
+  select(year, sex, cancer_site, incidences_all_ages) %>% 
+  mutate(yearly_pct_change = (incidences_all_ages - lag(incidences_all_ages)) / lag(incidences_all_ages) * 100) %>% 
+    gt() %>%
+  cols_label(
+    year = "Year",
+    sex = "Sex",
+    cancer_site = "Cancer Site",
+    incidences_all_ages = "No. of Incidences",
+    yearly_pct_change = "% Change from Previous Year") %>% 
+  tab_options(column_labels.font.weight = 'bold') %>% 
+  gt_highlight_rows(rows = c(3, 6, 9, 12, 15, 18, 21, 24),
+                    bold_target_only = TRUE,
+                    target_col = yearly_pct_change)
+  
+```
+
 
 # Hypothesis Test
 
