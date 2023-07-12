@@ -202,9 +202,8 @@ To understand how these rates compare to other health boards in Scotland, we can
 
 ```{r, message = FALSE}
 
-hbc_plot <- geo_summary %>% 
-  ggplot(aes(fill = easr, text = paste0("<b>NHS Health Board:</b> ", HBName, "<br>", 
-                             "<b>EASR: ~</b>", floor(easr), "<br>"))) + 
+geo_summary %>% 
+  ggplot(aes(fill = easr)) + 
   geom_sf(colour = "white", linewidth = 0.04) +
   labs(
     title = "Female Breast Cancer EASR (2017-2021)",
@@ -219,8 +218,6 @@ hbc_plot <- geo_summary %>%
         axis.title.x = element_blank(),
         axis.title.y = element_blank())
 
-
-ggplotly(hbc_plot, tooltip = "text")
 ```
 
 *NB - Unfortunately data for the individual health boards NHS Western Isles, NHS Shetland and NHS Orkney was not available at the time of report completion.*
