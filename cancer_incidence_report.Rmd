@@ -251,7 +251,7 @@ five_year_summary %>%
   gt() %>%
   tab_header(title = md("**Female Breast Cancer EASR (2017-2021)**")) %>% 
   cols_label(
-    hb_name = "NHS Health Board",
+    hb_name = "Health Board",
     easr = "EASR") %>% 
   tab_options(column_labels.font.weight = 'bold') %>%
   data_color(columns = easr, palette = "Blues")
