@@ -95,9 +95,9 @@ five_year_summary_geo <- five_year_summary %>%
 geo_summary <- hb_shapefiles %>%
   left_join(five_year_summary_geo, by = c("HBCode" = "hb"))
   
-# rm(five_year_summary_borders)
-# rm(five_year_summary_borders_incidence)
-# rm(cancer_incidence)
+rm(five_year_summary_borders)
+rm(five_year_summary_borders_incidence)
+rm(cancer_incidence)
 
 ```
 
@@ -202,9 +202,9 @@ To understand how these rates compare to other health boards in Scotland, we can
 
 ```{r, message = FALSE}
 
-geo_summary %>% 
+hbc_plot <- geo_summary %>% 
   ggplot(aes(fill = easr, text = paste0("<b>NHS Health Board:</b> ", HBName, "<br>", 
-                             "<b>EASR:</b> ", easr, "<br>"))) + 
+                             "<b>EASR: ~</b>", floor(easr), "<br>"))) + 
   geom_sf(colour = "white", linewidth = 0.04) +
   labs(
     title = "Female Breast Cancer EASR (2017-2021)",
@@ -219,6 +219,8 @@ geo_summary %>%
         axis.title.x = element_blank(),
         axis.title.y = element_blank())
 
+
+ggplotly(hbc_plot, tooltip = "text")
 ```
 
 *NB - Unfortunately data for the individual health boards NHS Western Isles, NHS Shetland and NHS Orkney was not available at the time of report completion.*
