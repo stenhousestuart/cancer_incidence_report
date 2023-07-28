@@ -24,7 +24,7 @@ library(gtExtras)
 
 # Set Colour Scheme
 
-colour_scheme <- c("#092869", "#0391BF", "#6B077B")
+colour_scheme <- c("#045a8d", "#a6bddb")
 
 # Read In Data
 
@@ -160,7 +160,7 @@ cancer_incidence_borders %>%
 </div>
 </div>
 <br>
-According to NHS Borders data, breast cancer among females hasthe highest number of incidences and highest mean European age-standardised rate (EASR) of any cancer type.
+According to NHS Borders data, breast cancer among females has the highest number of incidences and highest mean European age-standardised rate (EASR) of any cancer type.
 <br>
 
 <div class = "row">
